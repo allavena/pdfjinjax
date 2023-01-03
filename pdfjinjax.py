@@ -19,7 +19,7 @@ from pdfminer.pdftypes import PDFObjRef
 from pdfminer.layout import LAParams
 from pdfminer.converter import PDFPageAggregator
 from PIL import Image, ImageDraw, ImageFont
-from PyPDF2 import PdfFileWriter, PdfFileReader
+from PyPDF2 import PdfWriter, PdfReader
 from reportlab.lib.utils import ImageReader
 from reportlab.pdfgen import canvas
 from subprocess import Popen, PIPE
@@ -120,7 +120,7 @@ class Attachment(object):
             pdf.drawImage(ImageReader(self.label), x, y, w, h)
 
         pdf.save()
-        return PdfFileReader(stream).getPage(0)
+        return PdfReader(stream).pages[0]
 
 
 class PdfJinja(object):
@@ -261,18 +261,18 @@ class PdfJinja(object):
                         field = field.decode('utf-8')
                     self.rendered[field] = rendered_field
 
-        filled = PdfFileReader(self.exec_pdftk(self.rendered, flatten))
+        filled = PdfReader(self.exec_pdftk(self.rendered, flatten))
         for pagenumber, watermark in self.watermarks:
-            page = filled.getPage(pagenumber)
-            page.mergePage(watermark)
+            page = filled.pages[pagenumber]
+            page.merge_page(watermark)
 
-        output = PdfFileWriter()
-        pages = pages or range(filled.getNumPages())
+        output = PdfWriter()
+        pages = pages or range(len(filled.pages))
         for p in pages:
-            output.addPage(filled.getPage(p))
+            output.add_page(filled.pages[p])
 
         for attachment in attachments:
-            output.addBlankPage().mergePage(attachment.pdf())
+            output.add_blank_page().merge_page(attachment.pdf())
 
         return output
 
