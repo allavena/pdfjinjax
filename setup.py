@@ -30,5 +30,5 @@ setup(
         "pdfminer.six>=20160202",
         "Pillow>=3.2.0",
         "PyPDF2>=3.0.0",
-        "reportlab>=3.3.0"
+        "reportlab>=3.3.0,<4.0.0"
     ])
